@@ -1,0 +1,165 @@
+
+;@전투
+@TEST_BF_1
+
+
+PRINTL bf1 테스트
+PRINTFORMW 
+PRINTFORMW
+
+
+
+$INPUT_LOOP
+
+IF CFLAG:(캐릭터선택):현정력 <= 0
+	PRINTFORMW ━승리!━
+	;CFLAG:1:승리경험 += 1
+	CFLAG:1:승리경험 = CFLAG:1:승리경험 + 1
+	CALL BF_MENU
+ELSEIF CFLAG:1:현정력 <= 0
+	PRINTFORMW ━패배!━
+	CFLAG:1:패배경험 = CFLAG:1:패배경험 + 1
+	CALL BF_MENU
+ENDIF
+
+
+CUSTOMDRAWLINE ━
+CUSTOMDRAWLINE ━
+
+PRINTFORML %CSTR:1:이름%
+CALL PRINT_BAR, "감소게이지", CFLAG:1:현정력, CFLAG:1:최대정력, 26
+PRINTFORM ({CFLAG:1:현정력}/{CFLAG:1:최대정력})
+PRINTFORML
+PRINTFORML
+
+PRINTFORML %CSTR:(캐릭터선택):이름%
+CALL PRINT_BAR, "감소게이지", CFLAG:(캐릭터선택):현정력, CFLAG:(캐릭터선택):최대정력, 26
+PRINTFORM ({CFLAG:(캐릭터선택):현정력}/{CFLAG:(캐릭터선택):최대정력})
+PRINTFORML
+PRINTFORML
+
+PRINTL [0] - 가위
+PRINTL [1] - 바위
+PRINTL [2] - 보
+PRINTL [3] - 치트로 승리
+PRINTL [4] - 치트로 패배
+
+
+INPUT
+IF (RESULT == 0)||(RESULT == 1)||(RESULT == 2)||(RESULT == 3)||(RESULT == 4)
+	FCARD = RAND(3)
+ELSE
+	GOTO INPUT_LOOP
+ENDIF
+
+IF RESULT>2
+	ANATACARD = 가위바위보_치트(RESULT, FCARD)
+ELSE
+	ANATACARD = RESULT
+ENDIF
+
+
+
+PRINTFORM 아나타 VS 여캐
+PRINTFORML
+CALL 숫자_가위바위보변환, ANATACARD
+PRINTFORM   VS  
+CALL 숫자_가위바위보변환, FCARD
+PRINTFORM 
+PRINTFORMW
+
+
+
+SELECTCASE 가위바위보_승부판결(ANATACARD, FCARD)
+	CASE 0
+		PRINTFORM  패배
+		CFLAG:1:현정력 = CFLAG:1:현정력 - CFLAG:(캐릭터선택):기교
+	CASE 1
+		PRINTFORM  무승부
+		CFLAG:1:현정력 = CFLAG:1:현정력 - CFLAG:(캐릭터선택):기교
+		CFLAG:(캐릭터선택):현정력 = CFLAG:(캐릭터선택):현정력 - CFLAG:1:기교
+	CASE 2
+		PRINTFORM  승리
+		CFLAG:(캐릭터선택):현정력 = CFLAG:(캐릭터선택):현정력 - CFLAG:1:기교
+ENDSELECT
+PRINTFORMW 
+
+GOTO INPUT_LOOP
+
+;;;;;;;;;;&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+;;;;;;;;;;&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+@숫자_가위바위보변환, ARG
+VARSET LOCALS
+SELECTCASE ARG
+	CASE 0
+		LOCALS = 가위
+	CASE 1
+		LOCALS = 바위
+	CASE 2
+		LOCALS =   보
+ENDSELECT
+PRINTFORM %LOCALS%
+
+;;;;;;;;;;;;;;;;;;;
+
+@가위바위보_치트, ARG, ARG:1
+#FUNCTION
+IF ARG==3
+	SELECTCASE ARG:1
+	CASE 0
+		LOCAL = 1
+	CASE 1
+		LOCAL = 2
+	CASE 2
+		LOCAL = 0
+	ENDSELECT
+ELSE
+	SELECTCASE ARG:1
+	CASE 0
+		LOCAL = 2
+	CASE 1
+		LOCAL = 0
+	CASE 2
+		LOCAL = 1
+	ENDSELECT
+ENDIF
+RETURNF LOCAL
+
+;;;;;;;;;;;;;;;;;;;
+;입력 : 0=가위 1=바위 2=보
+;출력 : 0=패배 1=비김 2=승리
+@가위바위보_승부판결, ARG, ARG:1
+#FUNCTION
+SELECTCASE ARG
+	CASE 0
+		SELECTCASE ARG:1
+			CASE 0
+				LOCAL = 1
+			CASE 1
+				LOCAL = 0
+			CASE 2
+				LOCAL = 2
+		ENDSELECT
+	CASE 1
+		SELECTCASE ARG:1
+			CASE 0
+				LOCAL = 2
+			CASE 1
+				LOCAL = 1
+			CASE 2
+				LOCAL = 0
+		ENDSELECT
+	CASE 2
+		SELECTCASE ARG:1
+			CASE 0
+				LOCAL = 0
+			CASE 1
+				LOCAL = 2
+			CASE 2
+				LOCAL = 1
+		ENDSELECT
+ENDSELECT
+RETURNF LOCAL
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;
