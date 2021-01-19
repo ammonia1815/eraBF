@@ -1,0 +1,48 @@
+NO,1
+
+CSTR,이름,아나타
+CFLAG,성별,1
+
+CFLAG,최대정력,30
+CFLAG,현정력,30
+CFLAG,최대절정,1000
+CFLAG,현절정,0
+CFLAG,최대이성,100
+CFLAG,현이성,100
+CFLAG,최대기력,100
+CFLAG,현기력,100
+CFLAG,욕정,0
+;무드는 ERH에서 공통으로 적용
+
+CFLAG,완력,5,;1~10
+CFLAG,신장,3,;1~5
+;1 페도급 / 2 JK급 / 3 성인여 / 4 성인남 / 5 거구
+;  120      140        160       175      190
+CFLAG,매력,1
+
+;10이 기본값. 0~20. 10 아래쪽은 조교로 인한 약화
+;정신력-욕망;X기교-X욕정;X인내-X민감;X명기도-X음란도
+CFLAG,정신력,10
+
+CFLAG,H기교,10
+CFLAG,L기교,10
+
+CFLAG,M기교,10
+CFLAG,M인내,10
+CFLAG,M명기도,10
+CFLAG,B기교,0,;남자
+CFLAG,B인내,10
+CFLAG,B명기도,0,;남자
+CFLAG,W기교,10
+CFLAG,C인내,10
+CFLAG,C명기도,10
+CFLAG,V인내,0,;남자
+CFLAG,V명기도,0,;남자
+CFLAG,A인내,10
+
+
+
+CFLAG,기교,100
+
+CFLAG,승리경험,100
+CFLAG,패배경험,100
