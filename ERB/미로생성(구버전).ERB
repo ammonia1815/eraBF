@@ -1,0 +1,293 @@
+@미로생성
+$미로재생성
+FOR LCOUNT, 0, 15
+	FOR II, 0, 10
+			미로배열:LCOUNT:II = 0
+	NEXT
+NEXT
+FOR AA, 0, 4
+	FOR II, 0, 2
+		미로테두리:AA:II = 0
+	NEXT
+NEXT
+D = 0
+미로이동 = 0
+E = 40
+F = 0
+
+
+PRINTL 미로 생성 메뉴
+PRINTL 미로 크기 선택
+
+PRINTL [5] - 생성
+PRINTL [6] - 생성
+PRINTL [7] - 생성
+PRINTL [8] - 생성
+PRINTL [9] - 생성
+PRINTL [10] - 생성
+PRINTL [15] - 생성
+
+$INPUT_LOOP
+INPUT
+IF (RESULT == 5)||(RESULT == 6)||(RESULT == 7)||(RESULT == 8)||(RESULT == 9)||(RESULT == 10)||(RESULT == 15)
+	미로크기 = RESULT
+ELSE
+	GOTO INPUT_LOOP
+ENDIF
+
+미로배열:7:4 = 1
+$미로재생산
+
+FOR AA, 0, 15
+	FOR II, 0, 10
+		IF (미로크기!=0)&&(미로배열:AA:II == 1)
+;		 ((미로배열:AA:(II-1)) + (미로배열:(AA+1):II) + (미로배열:AA:(II+1)) + (미로배열:(AA-1):II)) < 3
+		SIF (0<AA<14)&&(0<II<9)
+		
+			미로테두리:0:0 = AA
+			미로테두리:0:1 = II - 1
+			미로테두리:1:0 = AA + 1
+			미로테두리:1:1 = II
+			미로테두리:2:0 = AA
+			미로테두리:2:1 = II + 1
+			미로테두리:3:0 = AA - 1
+			미로테두리:3:1 = II
+			
+			SELECTCASE RAND(1000)
+				CASE IS <= 100
+					SELECTCASE RAND(2)
+						CASE 0
+							C = 0
+						CASEELSE
+							C = 2
+					ENDSELECT
+				CASEELSE
+					SELECTCASE RAND(2)
+						CASE 0
+							C = 1
+						CASEELSE
+							C = 3
+					ENDSELECT
+			ENDSELECT
+			
+			BB = 미로테두리:C:0
+			JJ = 미로테두리:C:1
+			IF (RAND(10)==0)&&(BB!=-1)&&(BB!=15)&&(JJ!=-1)&&(JJ!=10)
+				IF 미로배열:BB:JJ != 1
+					미로배열:BB:JJ = 1
+					미로크기 = 미로크기 - 1
+				ENDIF
+			ENDIF
+		ENDIF
+	NEXT
+NEXT
+SIF 미로크기 != 0
+	GOTO 미로재생산
+
+IF 아나타최초배치확인 == 0
+	CALL 아나타최초배치
+;	아나타최초배치확인 = 1
+ELSE
+
+ENDIF
+
+$미로그리기
+FOR II, 0, 10
+	FOR LCOUNT, 0, 15
+		IF 미로배열:LCOUNT:II == 0
+			PRINTFORM 　　　
+		ELSE
+			PRINTFORM ┌─┐
+		ENDIF
+	NEXT
+	PRINTFORML
+	
+	FOR LCOUNT, 0, 15
+		IF 미로배열:LCOUNT:II == 0
+			PRINTFORM 　　　
+		ELSEIF 미로배열:LCOUNT:II == 9
+			PRINTFORM │@ │
+		ELSE
+			PRINTFORM │　│
+		ENDIF
+	NEXT
+	PRINTFORML
+	
+	FOR LCOUNT, 0, 15
+		IF 미로배열:LCOUNT:II == 0
+			PRINTFORM 　　　
+		ELSE
+			PRINTFORM └─┘
+		ENDIF
+	NEXT
+	PRINTFORML
+NEXT
+
+PRINTL 아나타는 지금 미로에 있다
+PRINTL 이동 방향 선택
+
+PRINTL [8] - 위로 이동
+PRINTL [4] - 좌로 이동
+PRINTL [5] - 아래로 이동
+PRINTL [6] - 우로 이동
+PRINTL [2] - 미로재생성
+
+
+$RE_MOVE
+;INPUT
+ONEINPUT
+IF (RESULT == 8)||(RESULT == 4)||(RESULT == 5)||(RESULT == 6)
+	미로이동 = RESULT
+ELSEIF RESULT == 2
+	GOTO 미로재생성
+ELSE
+	GOTO RE_MOVE
+ENDIF
+
+SELECTCASE 미로이동
+	CASE 8
+		IF (H == 0)||((미로배열:G:(H-1)) == 0)
+			PRINTFORML 가장자리이므로 이동할 수 없습니다
+			GOTO RE_MOVE
+		ELSE 
+			미로배열:G:H = 1
+			H = H - 1
+			미로배열:G:H = 9
+			GOTO 미로그리기
+		ENDIF
+		
+	CASE 4
+		IF (G == 0)||((미로배열:(G-1):(H)) == 0)
+			PRINTFORML 가장자리이므로 이동할 수 없습니다
+			GOTO RE_MOVE
+		ELSE 
+			미로배열:G:H = 1
+			G = G - 1
+			미로배열:G:H = 9
+			GOTO 미로그리기
+		ENDIF
+	
+	CASE 5
+		IF (H == 14)||((미로배열:(G):(H+1)) == 0)
+			PRINTFORML 가장자리이므로 이동할 수 없습니다
+			GOTO RE_MOVE
+		ELSE 
+			미로배열:G:H = 1
+			H = H + 1
+			미로배열:G:H = 9
+			GOTO 미로그리기
+		ENDIF
+	
+	CASE 6
+		IF (G == 9)||((미로배열:(G+1):(H)) == 0)
+			PRINTFORML 가장자리이므로 이동할 수 없습니다
+			GOTO RE_MOVE
+		ELSE 
+			미로배열:G:H = 1
+			G = G + 1
+			미로배열:G:H = 9
+			GOTO 미로그리기
+		ENDIF
+		
+	CASEELSE
+		
+ENDSELECT
+
+
+
+
+	
+;┌┐┘└─│　■ㅂㅇ
+
+[SKIPSTART]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+@아나타최초배치
+;아나타의 X좌표는 G / Y좌표는 H에 저장된다. 아나타 = 9
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+FOR AA, 0, 15
+	FOR II, 0, 10
+		IF (미로배열:AA:II == 1)&&(E >= (AA + II))
+			E = AA + II
+			G = AA
+			H = II
+		ENDIF
+	NEXT
+NEXT
+
+미로배열:G:H = 9
+[SKIPEND]
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+[SKIPSTART]
+FOR II, 0, 10
+	FOR LCOUNT, 0, 15
+		PRINTFORM ┌
+		PRINTFORM ─
+		PRINTFORM ┐
+	NEXT
+	PRINTFORML
+	
+	FOR LCOUNT, 0, 15
+		PRINTFORM │
+;		PRINTFORM 　
+		PRINTFORM ■
+		PRINTFORM │
+	NEXT
+	PRINTFORML
+	
+	FOR LCOUNT, 0, 15
+		PRINTFORM └
+		PRINTFORM ─
+		PRINTFORM ┘
+	NEXT
+	PRINTFORML
+NEXT
+[SKIPEND]
+
+[SKIPSTART]
+
+미로배열:1:1 = 1
+미로크기 = 미로크기 - 1
+
+;$미로재생산
+
+A = 7
+I = 4
+A = 1
+I = 1
+D = 0
+SIF ((A==0)&&(I==0))||((A==14)&&(I==0))||((A==14)&&(I==9))||((A==0)&&(I==9))
+	GOTO 미로재생산
+	
+$미로생성반복
+	미로테두리:0:0 = A
+	미로테두리:0:1 = I - 1
+	미로테두리:1:0 = A + 1
+	미로테두리:1:1 = I
+	미로테두리:2:0 = A
+	미로테두리:2:1 = I + 1
+	미로테두리:3:0 = A - 1
+	미로테두리:3:1 = I
+$재시작
+	C = RAND(4)
+	B = 미로테두리:C:0
+	J = 미로테두리:C:1
+IF (B!=-1)&&(B!=15)&&(J!=-1)&&(J!=10)
+	IF 미로크기 == D
+	
+	ELSEIF 미로배열:B:J != 1
+		미로배열:B:J = 1
+		A = B
+		I = J
+		D = D + 1
+		GOTO 미로생성반복
+	ELSE
+		GOTO 재시작
+	ENDIF
+ENDIF
+[SKIPEND]
+
+
+		
