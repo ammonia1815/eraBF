@@ -1,0 +1,245 @@
+
+@미로설정, ARGS, ARG, ARG:1, ARG:2
+
+
+
+
+
+
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+@PRINT_BAR, ARGS, ARG, ARG:1, ARG:2
+
+SIF ARG < 0
+	ARG = 0
+SIF ARG:1 < 0
+	ARG:1 = 0
+
+PRINTPLAINFORM [
+
+GETFONT
+CHKFONT "ＭＳ ゴシック"
+SIF RESULT
+	SETFONT "ＭＳ ゴシック"
+
+VARSET LOCAL
+VARSET LOCALS
+;色と記号の설정
+;IF CONFIG("画面표시：カラーバー")
+	SELECTCASE ARGS
+	CASE "ＰＡＬＡＭ절정"
+		LOCAL = DEF_COLOR("쇼킹핑크")
+	CASE "ＰＡＬＡＭ"
+		LOCAL = ((DEF_COLOR("하양")/65536)/10*(10-MIN(10, GET_PALAMLV(ARG))))*65536
+		LOCAL += (((DEF_COLOR("하양")/256)%256)/10*(10-MIN(10, GET_PALAMLV(ARG))))*256
+		LOCAL += ((DEF_COLOR("하양")%256)/10*(10-MIN(10, GET_PALAMLV(ARG))))
+		LOCAL += ((DEF_COLOR("핑크")/65536)/10*MIN(10, GET_PALAMLV(ARG)))*65536
+		LOCAL += (((DEF_COLOR("핑크")/256)%256)/10*MIN(10, GET_PALAMLV(ARG)))*256
+		LOCAL += ((DEF_COLOR("핑크")%256)/10*MIN(10, GET_PALAMLV(ARG)))
+	CASE "황색게이지"
+		LOCAL = DEF_COLOR("황색")
+	CASE "백색게이지"
+		LOCAL = DEF_COLOR("하양")
+	CASE "복숭아색게이지"
+		LOCAL = DEF_COLOR("핑크")
+	CASE "황색게이지_MAX비표시"
+		LOCAL = DEF_COLOR("황색")
+	CASE "백색게이지_MAX비표시"
+		LOCAL = DEF_COLOR("하양")
+	CASE "감소게이지"
+		SELECTCASE ARG * 100 / ARG:1
+		CASE IS >= 75
+			LOCAL = DEF_COLOR("초록")
+		CASE IS >= 50
+			LOCAL = DEF_COLOR("파랑")
+		CASE IS >= 25
+			LOCAL = DEF_COLOR("황색")
+		CASE IS >= 1
+			LOCAL = DEF_COLOR("홍색")
+		CASEELSE
+			LOCAL = DEF_COLOR("회색")
+		ENDSELECT
+	CASE "누적게이지"
+		SELECTCASE ARG * 100 / ARG:1
+		CASE IS >= 100
+			LOCAL = DEF_COLOR("핑크")
+		CASE IS >= 50
+			LOCAL = DEF_COLOR("황색")
+		CASEELSE
+			LOCAL = DEF_COLOR("파랑")
+		ENDSELECT
+	CASE "이성게이지"
+		SELECTCASE ARG * 100 / ARG:1
+		CASE IS >= 100
+			LOCAL = DEF_COLOR("파랑")
+		CASE IS >= 50
+			LOCAL = DEF_COLOR("황색")
+		CASEELSE
+			LOCAL = DEF_COLOR("핑크")
+		ENDSELECT
+	CASEELSE
+		THROW %GAMEBASE_YEAR%버젼 BUG : "%ARGS%" 를 찾을 수 없습니다.
+	ENDSELECT
+
+	SETCOLOR LOCAL
+	;バーの背景色
+;	IF CONFIG("画面표시：バー背景없음")
+;		LOCAL:1 = 0x000000
+;	ELSE
+		LOCAL:1 = (MAX(30, (LOCAL/65536)/5)*65536 + MAX(30, ((LOCAL/256)%256)/5)*256 + MAX(30, (LOCAL%256)/5) )
+;	ENDIF
+
+	LOCALS = %UNICODE(0x2587)%
+	LOCALS:1 = %LOCALS%
+	
+[SKIPSTART]
+ELSE
+	IF CONFIG("画面상성：バーのグラフ표시")
+		LOCALS = %UNICODE(0x2587)%
+	ELSE
+		LOCALS = *
+	ENDIF
+	IF CONFIG("画面표시：バー背景없음")
+		LOCALS:1 = %BL(1)%
+	ELSE
+		LOCALS:1 = .
+	ENDIF
+[SKIPEND]
+;ENDIF
+
+;PALAM形式のバーの최대치の算出
+SELECTCASE ARGS
+CASE "ＰＡＬＡＭ", "ＰＡＬＡＭ절정"
+[SKIPSTART]
+	IF GET_PALAMLV(ARG) >= 16
+		ARG:1 = PALAM_LV(16)
+	ELSE
+		ARG:1 = PALAM_LV(GET_PALAMLV(ARG) + 1) - PALAM_LV(GET_PALAMLV(ARG) )
+		ARG -= PALAM_LV(GET_PALAMLV(ARG) )
+	ENDIF
+[SKIPEND]
+ENDSELECT
+
+SELECTCASE ARG
+CASE IS <= 0
+;	SIF CONFIG("画面표시：カラーバー")
+		SETCOLOR LOCAL:1
+	PRINTPLAINFORM %LOCALS:1 * ARG:2%
+CASE IS >= ARG:1
+	SELECTCASE ARGS
+	CASE "황색게이지", "백색게이지", "복숭아색게이지", "ＰＡＬＡＭ"
+		SIF ARG:2 >= 3
+			LOCALS:2 = MAX
+	ENDSELECT
+	FOR LOCAL, 0, ARG:2
+		IF LOCALS:2 != "" && LOCAL == ARG:2/2 - STRLENS(LOCALS:2)/2
+			SETFONT RESULTS
+
+			PRINTPLAINFORM %LOCALS:2%
+
+			CHKFONT "ＭＳ ゴシック"
+			SIF RESULT
+				SETFONT "ＭＳ ゴシック"
+
+			LOCAL += STRLENS(LOCALS:2) - 1
+		ELSE
+			PRINTPLAINFORM %LOCALS%
+		ENDIF
+	NEXT
+CASEELSE
+	FOR LOCAL, 0, ARG:2
+		SELECTCASE LOCAL
+		CASE (ARG*ARG:2 - ARG:2 + ARG:1) / ARG:1
+;			SIF CONFIG("画面표시：カラーバー")
+				SETCOLOR LOCAL:1
+			LOCALS = %LOCALS:1%
+		ENDSELECT
+		PRINTPLAINFORM %LOCALS%
+	NEXT
+ENDSELECT
+RESETCOLOR
+
+SETFONT RESULTS
+
+PRINTPLAINFORM ]
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+@DEF_COLOR(ARGS)
+#FUNCTION
+SELECTCASE ARGS
+CASE "쇼킹핑크"
+	RETURNF 0xEF0EEF
+CASE "핑크", "ピンク"
+	RETURNF 0xEF857C
+CASE "하트핑크"
+	RETURNF 0xFFC0CB
+CASE "빨강", "赤"
+	RETURNF 0xEF5445
+CASE "홍색", "紅"
+	RETURNF 0xB815B8
+CASE "황색"
+	RETURNF 0xEFD540
+CASE "暗황색"
+	RETURNF 0xC4C400
+CASE "노랑"
+	RETURNF 0xFFFF00
+CASE "초록"
+	RETURNF 0x70E02C
+CASE "파랑"
+	RETURNF 0x4470EF
+CASE "물색"
+	RETURNF 0xB0CCEF
+CASE "暗회색"
+	RETURNF 0x404040
+CASE "회색"
+	RETURNF 0x707070
+CASE "明회색"
+	RETURNF 0xA0A0A0
+CASE "하양"
+	RETURNF 0xE3E3E3
+CASE "껌정"
+	RETURNF 0x000000
+CASEELSE
+	THROW %GAMEBASE_YEAR%버젼 BUG : "%ARGS%" 를 찾을 수 없습니다.
+ENDSELECT
+
+
+@능력치배열(ARGS)
+#FUNCTION
+SELECTCASE ARGS
+CASE "최대정력"
+	RETURNF 0
+CASE "현정력"
+	RETURNF 1
+CASE "최대쾌락"
+	RETURNF 2
+CASE "현쾌락"
+	RETURNF 3
+CASE "최대이성"
+	RETURNF 4
+CASE "현이성"
+	RETURNF 5
+CASE "최대기력"
+	RETURNF 6
+CASE "현기력"
+	RETURNF 7
+CASE "최대욕정"
+	RETURNF 8
+CASE "현욕정"
+	RETURNF 9
+CASE "기교"
+	RETURNF 10
+CASE "감도"
+	RETURNF 11
+CASE "완력"
+	RETURNF 12
+CASE "욕망"
+	RETURNF 13
+CASEELSE
+	THROW %GAMEBASE_YEAR%버젼 BUG : "%ARGS%" 를 찾을 수 없습니다.
+ENDSELECT
