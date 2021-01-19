@@ -1,0 +1,216 @@
+@월드이동
+$월드이동_
+IF 전투중 >= 1
+	전투중 = 0
+	GOTO 미로그리기
+	ELSE
+ENDIF
+
+SELECTCASE 미로층계
+	CASE 1
+		CALL 월드1층
+	CASE 2
+		CALL 월드2층
+	CASE 3
+		CALL 월드3층
+	CASEELSE
+ENDSELECT
+
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+[SKIPSTART]
+아나타 랜덤배치함수
+$아나타재배치
+IF 아나타최초배치확인 == 0
+	CALL 아나타최초배치
+ELSE
+ENDIF
+
+SIF 아나타최초배치확인 == 0
+	GOTO 아나타재배치
+[SKIPEND]
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+$미로그리기
+
+FOR II, 0, 10
+	FOR LCOUNT, 0, 20
+		IF 미로공간:LCOUNT:II == 0
+			PRINTFORM ■
+		ELSEIF 미로공간:LCOUNT:II == 9
+			PRINTFORM ＠
+		ELSEIF (미로공간:LCOUNT:II>= 2) && (미로공간:LCOUNT:II<= 7)
+			SETCOLOR DEF_COLOR("핑크")
+				PRINTFORM 淫
+			RESETCOLOR
+		ELSEIF 미로공간:LCOUNT:II == 8
+			PRINTFORM ◎
+		ELSE
+			PRINTFORM 　
+		ENDIF
+	NEXT
+	PRINTFORML
+NEXT
+
+PRINTL 아나타는 지금 미로에 있다
+PRINTL 이동 방향 선택
+
+PRINTL [8] - 위로 이동
+PRINTL [4] - 좌로 이동
+PRINTL [5] - 아래로 이동
+PRINTL [6] - 우로 이동
+PRINTL [2] - 메인메뉴로
+
+
+$RE_MOVE
+;INPUT
+ONEINPUT
+IF (RESULT == 8)||(RESULT == 4)||(RESULT == 5)||(RESULT == 6)
+	미로이동 = RESULT
+ELSEIF RESULT == 2
+	CALL SHOW_SHOP
+ELSE
+	GOTO RE_MOVE
+ENDIF
+SELECTCASE 미로이동
+	CASE 8
+		AA = G
+		BB = H-1
+	CASE 4
+		AA = G-1
+		BB = H
+	CASE 5
+		AA = G
+		BB = H+1
+	CASE 6
+		AA = G+1
+		BB = H
+	CASEELSE
+ENDSELECT
+
+IF 미로공간:AA:BB == 0
+	PRINTFORML 가장자리이므로 이동할 수 없습니다
+	GOTO RE_MOVE
+ELSEIF 미로공간:AA:BB == 1
+	미로공간:G:H = 1
+	미로공간:AA:BB = 9
+	G = AA
+	H = BB
+	GOTO 미로그리기
+
+ELSEIF (미로공간:AA:BB>= 2) && (미로공간:AA:BB<= 7)
+	캐릭터선택 == (미로공간:AA:BB) - 1
+	전투중 = 1
+	CALL 전투
+
+ELSEIF 미로공간:AA:BB == 8
+	PRINTFORMW {미로층계}층 클리어!
+	미로층계 = 미로층계 + 1
+	GOTO 월드이동_
+ENDIF
+
+[SKIPSTART]
+SELECTCASE 미로이동
+	CASE 8
+		IF ((미로공간:G:(H-1)) == 0)
+			PRINTFORML 가장자리이므로 이동할 수 없습니다
+			GOTO RE_MOVE
+		ELSE 
+			미로공간:G:H = 1
+			H = H - 1
+			미로공간:G:H = 9
+			GOTO 미로그리기
+		ENDIF
+		
+	CASE 4
+		IF ((미로공간:(G-1):(H)) == 0)
+			PRINTFORML 가장자리이므로 이동할 수 없습니다
+			GOTO RE_MOVE
+		ELSE 
+			미로공간:G:H = 1
+			G = G - 1
+			미로공간:G:H = 9
+			GOTO 미로그리기
+		ENDIF
+	
+	CASE 5
+		IF ((미로공간:(G):(H+1)) == 0)
+			PRINTFORML 가장자리이므로 이동할 수 없습니다
+			GOTO RE_MOVE
+		ELSE 
+			미로공간:G:H = 1
+			H = H + 1
+			미로공간:G:H = 9
+			GOTO 미로그리기
+		ENDIF
+	
+	CASE 6
+		IF ((미로공간:(G+1):(H)) == 0)
+			PRINTFORML 가장자리이므로 이동할 수 없습니다
+			GOTO RE_MOVE
+		ELSE 
+			미로공간:G:H = 1
+			G = G + 1
+			미로공간:G:H = 9
+			GOTO 미로그리기
+		ENDIF
+		
+	CASEELSE
+ENDSELECT
+[SKIPEND]
+
+;┌┐┘└─│　■ㅂㅇ
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+@아나타최초배치
+; 아나타의 X좌표는 G / Y좌표는 H에 저장된다. 아나타 = 9
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+G = RAND(20)
+H = RAND(10)
+IF 미로공간:G:H == 1
+		미로공간:G:H = 9
+		아나타최초배치확인 = 1
+	ELSE
+ENDIF
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;;구버전 미로그리기. 큼지막하지만 비직관적
+[SKIPSTART]
+FOR II, 0, 10
+	FOR LCOUNT, 0, 20
+		IF 미로공간:LCOUNT:II == 0
+;			PRINTFORM 　　　
+			PRINTFORM ■■■
+		ELSE
+			PRINTFORM ┌─┐
+		ENDIF
+	NEXT
+	PRINTFORML
+	
+	FOR LCOUNT, 0, 20
+		IF 미로공간:LCOUNT:II == 0
+;			PRINTFORM 　　　
+			PRINTFORM ■■■
+		ELSEIF 미로공간:LCOUNT:II == 9
+			PRINTFORM │@ │
+		ELSE
+			PRINTFORM │　│
+		ENDIF
+	NEXT
+	PRINTFORML
+	
+	FOR LCOUNT, 0, 20
+		IF 미로공간:LCOUNT:II == 0
+;			PRINTFORM 　　　
+			PRINTFORM ■■■
+		ELSE
+			PRINTFORM └─┘
+		ENDIF
+	NEXT
+	PRINTFORML
+NEXT
+[SKIPEND]
+		
