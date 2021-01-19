@@ -1,0 +1,8 @@
+NO,4
+
+CSTR,이름,세타
+CFLAG,성별,2
+
+CFLAG,최대정력,1500
+CFLAG,현정력,1500
+CFLAG,기교,200
