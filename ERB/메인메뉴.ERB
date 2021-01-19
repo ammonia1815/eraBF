@@ -1,0 +1,112 @@
+@SHOW_SHOP
+
+
+	CALL BF_MENU
+@BF_MENU
+
+;#DIM DYNAMIC 이차배열실험, 4, 4
+#DIM DYNAMIC ㄱ = 3
+#DIMS DYNAMIC ㄴ = "이"
+#DIMS DYNAMIC ㄷ = "름"
+#DIMS DYNAMIC ㄹ
+#DIMS DYNAMIC ㅁ
+#DIMS DYNAMIC ㅂ
+ㄹ = M
+ㅁ = 기교
+ㅂ = %ㄹ%%ㅁ%
+PRINTFORML %ㅂ%
+PRINTFORML {CFLAG:ㄱ:ㅂ}
+;#DIMS 문자열실험 = "가나다"
+;#DIM ㄷ
+;ㄷ = 
+;ㄷ = %문자열실험% 마바사
+;ㄱ = sqrt(ㄱ)
+IF 변수설정 == 0
+	변수설정 = 변수설정 + 1
+	
+	FOR LCOUNT, 0, 3
+		능력치:0:LCOUNT = 아나타:LCOUNT
+		능력치:1:LCOUNT = 알파:LCOUNT
+		능력치:2:LCOUNT = 브라보:LCOUNT
+		능력치:3:LCOUNT = 세타:LCOUNT
+	NEXT
+	
+	
+	
+ENDIF
+;PRINTFORML %CSTR:(ㄱ ^ 1):이름%
+;PRINTFORML %CSTR:(ㄴ ^ 1):이름%
+PRINTFORML %CSTR:ㄱ:이름%
+PRINTFORML %CSTR:ㄱ:(ㄴ+ㄷ)%
+;이차배열실험:0:0 = 3    ,    4  ,    5    ,     6
+;이차배열실험:1:0 = 31, 14, 15, 16
+;ㄷ = ㄱ ^ ㄴ
+;	PRINTFORML {ㄱ}
+;PRINTFORML {이차배열실험:0:0} {이차배열실험:0:1} {이차배열실험:0:2}
+;SIF (ㄱ) & (ㄴ)
+;	PRINTL 실험성공
+
+PRINTL BF 매뉴입니다
+PRINTL 설정 항목을 선택해주세요
+
+PRINTL [0] - 아나타 설정
+
+PRINTL [1] - 배틀
+PRINTL [2] - 배틀
+PRINTL [3] - 배틀
+PRINTL [4] - 전투
+SETCOLOR DEF_COLOR("황색")
+PRINTL [5] - 월드진입
+RESETCOLOR
+PRINTL [100] - 세이브
+PRINTL [101] - 로드
+
+$INPUT_LOOP
+INPUT
+IF RESULT == 0
+	CALL TEST_ANATA_SET
+	
+ELSEIF RESULT == 1
+	캐릭터선택 = 2
+	CALL TEST_BF_1
+ELSEIF RESULT == 2
+	캐릭터선택 = 3
+	CALL TEST_BF_1
+ELSEIF RESULT == 3
+	캐릭터선택 = 4
+	CALL TEST_BF_1
+ELSEIF RESULT == 4
+	전투중 = 1
+	캐릭터선택 = 3
+	CALL 전투
+ELSEIF RESULT == 5
+	CALL 월드이동
+
+ELSEIF RESULT == 100
+	SAVEGAME
+	CALL BF_MENU
+ELSEIF RESULT == 101
+	LOADGAME
+	CALL BF_MENU
+ELSE
+	GOTO INPUT_LOOP
+ENDIF
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+@TEST_ANATA_SET
+DRAWLINE
+
+
+PRINTFORML 현재 체력: {아나타:0}
+PRINTFORML 승리횟수: {CFLAG:1:승리경험}
+PRINTFORML 패배횟수: {CFLAG:1:패배경험}
+PRINTL 원하는 체력을 입력하세요(마이너스 값이라면 변경하지 않습니다)
+
+INPUT
+SIF RESULT < 0
+    RETURN 0
+아나타:0 = RESULT
+아나타:1 = RESULT
+PRINTFORMW 현재 체력을 {아나타:0}으로 변경했습니다.
+CALL BF_MENU
